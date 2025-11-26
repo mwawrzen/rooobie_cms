@@ -1,5 +1,5 @@
-import { UserExistsError } from "./errors";
-import { insertNewUser, getUserByEmail } from "./repository";
+import { UserExistsError, UserNotFoundError } from "./errors";
+import { insertNewUser, getUserByEmail, getUserById, updateUser } from "./repository";
 
 /**
  * Encrypts password using bcrypt
@@ -49,4 +49,35 @@ export async function registerNewUser( email: string, password: string ) {
   const newUser= await insertNewUser( email, passwordHash );
 
   return newUser;
+};
+
+export async function updateUserProfile(
+  id: number,
+  email?: string,
+  password?: string
+) {
+  const data: { email?: string, passwordHash?: string }= {};
+
+  const existingUser= await getUserById( id );
+
+  if( !existingUser )
+    throw new UserNotFoundError();
+
+  if( password )
+    data.passwordHash= await hashPassword( password );
+
+  if( email )
+    data.email= email;
+
+  if( Object.keys( data ).length=== 0 ) {
+    const { passwordHash: _, ...safeUser }= existingUser;
+    return safeUser;
+  }
+
+  const updatedUser= await updateUser( id, data );
+
+  if( !updatedUser )
+    throw new Error( "Database integrity error during update" );
+
+  return updatedUser;
 };

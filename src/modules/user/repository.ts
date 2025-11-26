@@ -11,21 +11,10 @@ function translateDbError( error: unknown ): never {
     error instanceof Error&&
     error.message.includes( "SQLITE_CONSTRAINT: UNIQUE" )
   ) {
-    throw new UserExistsError;
+    throw new UserExistsError();
   }
   throw error;
 }
-
-/**
- * Fetch user by email address
- * @param email User email
- * @returns User object or null
- */
-export async function getUserByEmail( email: string ) {
-  return await db.query.users.findFirst({
-    where: eq( users.email, email )
-  });
-};
 
 /**
  * Creates a new user in database
@@ -51,7 +40,55 @@ export async function insertNewUser( email: string, passwordHash: string ) {
     }
 
     throw new Error( "Database operation failed: insertNewUser returned empty result" );
+  } catch( error ) {
+    translateDbError( error );
+  }
+};
 
+/**
+ * Returns user by id
+ * @param id User id
+ * @returns User object
+ */
+export async function getUserById( id: number ) {
+  return await db.query.users.findFirst({
+    where: eq( users.id, id )
+  });
+};
+
+/**
+ * Returns user by email address
+ * @param email User email
+ * @returns User object or null
+ */
+export async function getUserByEmail( email: string ) {
+  return await db.query.users.findFirst({
+    where: eq( users.email, email )
+  });
+};
+
+/**
+ * Updates user data
+ * @param id User id
+ * @param data New data (email and/or password)
+ * @returns Updated user object
+ */
+export async function updateUser(
+  id: number,
+  data: { email?: string, passwordHash?: string }
+) {
+  try {
+    const result= await db.update( users )
+      .set( data )
+      .where( eq( users.id, id ))
+      .returning();
+
+    const updatedUser= result[ 0 ];
+
+    if( updatedUser ) {
+      const { passwordHash: _, ...safeUser }= updatedUser;
+      return safeUser;
+    }
   } catch( error ) {
     translateDbError( error );
   }
