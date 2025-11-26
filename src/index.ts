@@ -1,9 +1,10 @@
 import { Elysia } from "elysia";
+import { apiV1 } from "@/src/api/v1";
 
 const PORT= process.env.PORT!;
 
 const app= new Elysia()
-  .get( "/", ()=> "hello." )
+  .use( apiV1 )
   .listen( PORT );
 
 console.log(
