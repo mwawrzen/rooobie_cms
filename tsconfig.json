@@ -36,6 +36,7 @@
       "@db/*": ["src/db/*"],
       "@db": ["src/db/client.ts"],
       "@schema": ["src/db/schema.ts"],
+      "@modules/*": ["src/modules/*"],
     },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
