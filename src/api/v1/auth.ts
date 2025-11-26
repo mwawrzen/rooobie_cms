@@ -4,7 +4,7 @@ import { validateUser } from "@modules/user/service";
 
 export const authRouter= ( app: Elysia )=> app
   .use( authConfig )
-  .post( "/login", async ({ body, jwt, set }: any)=> {
+  .post( "/login", async ({ body, jwt, set })=> {
 
     const { email, password }= body;
 
