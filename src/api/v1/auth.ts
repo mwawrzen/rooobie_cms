@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { authConfig } from "@auth/config";
-import { validateUser } from "@/src/modules/user/service";
+import { validateUser } from "@modules/user/service";
 
 export const authRouter= ( app: Elysia )=> app
   .use( authConfig )
