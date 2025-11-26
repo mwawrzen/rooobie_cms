@@ -1,12 +1,12 @@
 import { relations, sql } from "drizzle-orm";
 import {
   int,
-  sqliteTable as table,
+  sqliteTable,
   text,
   unique
 } from "drizzle-orm/sqlite-core";
 
-export const projects= table( "projects", {
+export const projects= sqliteTable( "projects", {
   id: int().primaryKey({ autoIncrement: true }),
   name: text().notNull().unique(),
   description: text(),
@@ -14,14 +14,24 @@ export const projects= table( "projects", {
   createdAt: text( "created_at" ).default( sql`CURRENT_TIMESTAMP` )
 });
 
-export const contentVariables= table( "content_variables", {
+export const contentVariables= sqliteTable( "content_variables", {
   id: int().primaryKey({ autoIncrement: true }),
   keyName: text( "key_name" ).notNull(),
   value: text().notNull(),
   projectId: int( "project_id" ).notNull().references( ()=> projects.id )
-}, t=> ({
-  unqKeyPerProject: unique( "key_per_project" ).on( t.projectId, t.keyName )
-}));
+});
+
+export const contentVariablesIdx= unique( "key_per_project" ).on(
+  contentVariables.projectId,
+  contentVariables.keyName
+);
+
+export const users= sqliteTable( "users", {
+  id: int().primaryKey({ autoIncrement: true }),
+  email: text().notNull().unique(),
+  passwordHash: text( "password_hash" ).notNull(),
+  createdAt: text( "created_at" ).default( sql`CURRENT_TIMESTAMP` )
+});
 
 export const projectRelations= relations( projects, ({ many })=> ({
   variables: many( contentVariables )
