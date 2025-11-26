@@ -1,44 +1,38 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
-  AnySQLiteColumn,
   int,
   sqliteTable as table,
-  text
+  text,
+  unique
 } from "drizzle-orm/sqlite-core";
 
-export const dashboards= table( "dashboards", {
+export const projects= table( "projects", {
   id: int().primaryKey({ autoIncrement: true }),
-  name: text().notNull(),
+  name: text().notNull().unique(),
   description: text(),
-  configJson:
-    text( "config_json", { mode: "json" })
-    .$type<{ globalFilters?: string[], theme?: string }>(),
+  apiKey: text( "api_key" ).notNull().unique(),
   createdAt: text( "created_at" ).default( sql`CURRENT_TIMESTAMP` )
 });
 
-export const widgets= table( "widgets", {
+export const contentVariables= table( "content_variables", {
   id: int().primaryKey({ autoIncrement: true }),
-  dashboardId:
-    int( "dashboard_id" )
-    .notNull()
-    .references( (): AnySQLiteColumn=> dashboards.id ),
-  title: text().notNull(),
-  type: text().notNull(),
-  positionX: int( "position_x" ).notNull(),
-  positionY: int( "position_y" ).notNull(),
-  width: int().notNull().default( 1 ),
-  height: int().notNull().default( 1 ),
-  settingsJson:
-    text( "settings_json", { mode: "json" })
-    .$type<{ xAxis?: string, yAxis?: string, seriesColors?: string[] }>(),
-  sourceKey: text( "source_key" ).notNull()
-});
+  keyName: text( "key_name" ).notNull(),
+  value: text().notNull(),
+  projectId: int( "project_id" ).notNull().references( ()=> projects.id )
+}, t=> ({
+  unqKeyPerProject: unique( "key_per_project" ).on( t.projectId, t.keyName )
+}));
 
-export const dataPoints= table( "data_points", {
-  id: int().primaryKey({ autoIncrement: true }),
-  sourceKey: text( "source_key" ).notNull(),
-  key: text().notNull(),
-  value: int({ mode: "number" }).notNull(),
-  metadataJson: text( "metadata_json", { mode: "json" }),
-  timestamp: text().default( sql`CURRENT_TIMESTAMP` )
-});
+export const projectRelations= relations( projects, ({ many })=> ({
+  variables: many( contentVariables )
+}));
+
+export const contentVariablesRelations= relations(
+  contentVariables,
+  ({ one })=> ({
+    project: one( projects, {
+      fields: [ contentVariables.projectId ],
+      references: [ projects.id ]
+    })
+  })
+);
