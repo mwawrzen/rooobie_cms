@@ -4,9 +4,7 @@ import { getUserById } from "@modules/user/repository";
 
 export const authGuard= ( app: Elysia )=> app
   .use( authPlugin )
-  .decorate( "user", null as { id: number, email: string }| null )
-  .on( "beforeHandle", async ({ jwt, set, headers })=> {
-
+  .resolve( async ({ jwt, headers, set }) => {
     const authHeader= headers[ "authorization" ];
 
     if( !authHeader|| !authHeader.startsWith( "Bearer " )) {
@@ -22,12 +20,14 @@ export const authGuard= ( app: Elysia )=> app
       return { error: "Invalid or expired token" };
     }
 
-    const dbUser= await getUserById( profile.userId );
+    const dbUser= await getUserById( Number( profile.userId ));
 
     if( !dbUser ) {
       set.status= 401;
       return { error: "User in token not found" };
     }
 
-    set.context.user= { id: dbUser.id, email: dbUser.email };
+    const user= { id: dbUser.id, email: dbUser.email };
+
+    return { user };
   });
