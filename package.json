@@ -5,6 +5,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "bun src/db/seed.ts",
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
