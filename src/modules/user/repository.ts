@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@db";
 import { users } from "@schema";
 import { UserExistsError } from "@modules/user/errors";
-import { SafeUser } from "./schemas";
+import { SafeUser } from "@modules/user/schemas";
 
 const safeUserColumns= {
   id: users.id,
@@ -71,6 +71,22 @@ export async function getUserById( id: number ) {
   return await db.query.users.findFirst({
     where: eq( users.id, id )
   });
+};
+
+/**
+ * Returns safe user by id
+ * @param id User id
+ * @returns Safe user object
+ */
+export async function getSafeUserById(
+  id: number
+): Promise<SafeUser | undefined> {
+
+  const userList= await db.select( safeUserColumns )
+    .from( users )
+    .where( eq( users.id, id ));
+
+  return userList[ 0 ];
 };
 
 /**
