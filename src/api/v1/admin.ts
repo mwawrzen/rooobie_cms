@@ -1,10 +1,20 @@
 import { Elysia } from "elysia";
-import { UserExistsError, UserNotFoundError } from "@modules/user/errors";
-import { registerNewUser, updateUserProfile } from "@modules/user/service";
-import { LoginBodySchema, UpdateProfileBodySchema } from "@modules/user/schemas";
+import { UserExistsError } from "@modules/user/errors";
+import { registerNewUser } from "@modules/user/service";
+import { LoginBodySchema } from "@modules/user/schemas";
+import { getUsers } from "@modules/user/repository";
 
 export const adminRouter= new Elysia()
-  .post( "/users", async ({ body, set })=> {
+  .get( "/user", async ({ body, set })=> {
+    try {
+      const users= await getUsers();
+      return { users };
+    } catch( error ) {
+      set.status= 500;
+      return { error: "Failed to retrieve user list" };
+    }
+  })
+  .post( "/user", async ({ body, set })=> {
     try {
       const { id, email, createdAt }= await registerNewUser(
         body.email,
@@ -33,49 +43,4 @@ export const adminRouter= new Elysia()
     }
   }, {
     body: LoginBodySchema
-  })
-  .get( "/me", async ({ user }: any )=> {
-    return user;
-  })
-  .patch( "/me", async ({ body, set, user }: any )=> {
-    const userId= user.id;
-
-    if( !body.email&& !body.password ) {
-      set.status= 400;
-      return { error: "No data provided for update" };
-    }
-
-    try {
-      const updatedUser= await updateUserProfile(
-        userId,
-        body.email,
-        body.password
-      );
-
-      return {
-        message: "Profile updated successfully",
-        user: updatedUser
-      };
-
-    } catch( error ) {
-
-      if( error instanceof UserExistsError ) {
-        set.status= 409;
-        return { error: "Resource conflict", message: "Email already in use" };
-      }
-
-      if( error instanceof UserNotFoundError ) {
-        set.status= 404;
-        return { error: "Not found", message: "User profile not found" };
-      }
-
-      set.status= 500;
-
-      return {
-        error: "Internal server error",
-        message: ( error as Error ).message
-      };
-    }
-  }, {
-    body: UpdateProfileBodySchema
   });
