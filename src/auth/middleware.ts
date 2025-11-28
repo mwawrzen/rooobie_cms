@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { authPlugin } from "@/src/auth/plugin";
+import { authPlugin } from "@/src/auth/jwt.plugin";
 import { getUserById } from "@modules/user/repository";
 import { AuthenticatedUser } from "@modules/user/schemas";
 
