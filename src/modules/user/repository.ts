@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@db";
 import { users } from "@schema";
-import { UserExistsError } from "./errors";
+import { UserExistsError } from "@modules/user/errors";
 
 /**
  * Translates db error to system error
