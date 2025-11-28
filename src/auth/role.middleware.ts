@@ -7,7 +7,7 @@ export const requiresAdmin= ( app: Elysia )=> app
       set.status= 401;
       return { error: "Authentication required" };
     }
-    console.log( user );
+
     if( user.role!== "admin" ) {
       set.status= 403;
       return { error: "Access denied: Admin privileges required" };
