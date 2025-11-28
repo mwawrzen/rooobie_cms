@@ -31,6 +31,7 @@ export const authGuard= ( app: Elysia )=> app
     const user: AuthenticatedUser= {
       id: dbUser.id,
       email: dbUser.email,
+      role: dbUser.role,
       createdAt: dbUser.createdAt
     };
 
