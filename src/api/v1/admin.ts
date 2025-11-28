@@ -6,13 +6,16 @@ import { LoginBodySchema, UpdateProfileBodySchema } from "@modules/user/schemas"
 export const adminRouter= new Elysia()
   .post( "/users", async ({ body, set })=> {
     try {
-      const newUser= await registerNewUser( body.email, body.password );
+      const { id, email, createdAt }= await registerNewUser(
+        body.email,
+        body.password
+      );
 
       set.status= 201;
 
       return {
         message: "User created successfully",
-        user: { id: newUser.id, email: newUser.email }
+        user: { id, email, createdAt }
       };
 
     } catch( error ) {
@@ -43,7 +46,11 @@ export const adminRouter= new Elysia()
     }
 
     try {
-      const updatedUser= await updateUserProfile( userId, body.email, body.password );
+      const updatedUser= await updateUserProfile(
+        userId,
+        body.email,
+        body.password
+      );
 
       return {
         message: "Profile updated successfully",
