@@ -1,6 +1,7 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import { authPlugin } from "@/src/auth/plugin";
 import { validateUser } from "@modules/user/service";
+import { LoginBodySchema } from "@modules/user/schemas";
 
 export const authRouter= ( app: Elysia )=> app
   .use( authPlugin )
@@ -22,8 +23,5 @@ export const authRouter= ( app: Elysia )=> app
 
     return { token };
   }, {
-    body: t.Object({
-      email: t.String({ format: "email" }),
-      password: t.String()
-    })
+    body: LoginBodySchema
   });

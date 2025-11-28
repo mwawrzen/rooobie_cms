@@ -1,16 +1,7 @@
+import { Elysia } from "elysia";
 import { UserExistsError, UserNotFoundError } from "@modules/user/errors";
 import { registerNewUser, updateUserProfile } from "@modules/user/service";
-import { Elysia, t } from "elysia";
-
-const CreateUserBody= t.Object({
-  email: t.String({ format: "email" }),
-  password: t.String({ minLength: 8 })
-});
-
-const UpdateUserBody= t.Object({
-  email: t.Optional(t.String({ format: "email" })),
-  password: t.Optional(t.String({ minLength: 8 }))
-});
+import { LoginBodySchema, UpdateProfileBodySchema } from "@modules/user/schemas";
 
 export const adminRouter= new Elysia()
   .post( "/users", async ({ body, set })=> {
@@ -38,14 +29,13 @@ export const adminRouter= new Elysia()
       return { error: "Internal server error" };
     }
   }, {
-    body: CreateUserBody
+    body: LoginBodySchema
   })
-  .get( "/me", async ({ user }: any)=> {
-    console.log( user );
+  .get( "/me", async ({ user }: any )=> {
     return user;
   })
-  .patch( "/me", async ({ body, store, set }: any)=> {
-    const userId= store.user.id;
+  .patch( "/me", async ({ body, set, user }: any )=> {
+    const userId= user.id;
 
     if( !body.email&& !body.password ) {
       set.status= 400;
@@ -79,4 +69,6 @@ export const adminRouter= new Elysia()
         message: ( error as Error ).message
       };
     }
+  }, {
+    body: UpdateProfileBodySchema
   });
