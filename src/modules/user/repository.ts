@@ -126,3 +126,17 @@ export async function updateUser(
     translateDbError( error );
   }
 };
+
+/**
+ * Deletes user by id from db
+ * @param id User id
+ * @returns Number of deleted rows in db
+ */
+export async function deleteUser( id: number ): Promise<number> {
+
+  const result= await db.delete( users )
+    .where( eq( users.id, id ))
+    .run();
+
+  return ( result as unknown as { changes: number }).changes;
+}
