@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
-import { authPlugin } from "@/src/auth/jwt.plugin";
+import { authJwtPlugin } from "@auth/jwt.plugin";
 import { getUserById } from "@modules/user/repository";
 import { AuthenticatedUser } from "@modules/user/schemas";
 
 export const authGuard= ( app: Elysia )=> app
-  .use( authPlugin )
+  .use( authJwtPlugin )
   .resolve( async ({ jwt, headers, set }) => {
     const authHeader= headers[ "authorization" ];
 
