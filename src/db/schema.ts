@@ -7,7 +7,7 @@ import {
 } from "drizzle-orm/sqlite-core";
 
 export const userRoles= [ "admin", "editor" ] as const;
-export type UserRole= ( typeof userRoles )[ number ];
+export type USER_ROLE= ( typeof userRoles )[ number ];
 
 export const projectStatuses= [ "ACTIVE", "ARCHIVED", "PLANNED" ] as const;
 
