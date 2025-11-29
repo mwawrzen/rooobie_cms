@@ -10,6 +10,7 @@ export const userRoles= [ "admin", "editor" ] as const;
 export type USER_ROLE= ( typeof userRoles )[ number ];
 
 export const projectStatuses= [ "ACTIVE", "ARCHIVED", "PLANNED" ] as const;
+export type PROJECT_STATUS= ( typeof projectStatuses )[ number ];
 
 export const projects= sqliteTable( "projects", {
   id: int().primaryKey({ autoIncrement: true }),
