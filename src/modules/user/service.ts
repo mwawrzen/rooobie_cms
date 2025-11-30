@@ -1,5 +1,6 @@
-import { UserExistsError, UserNotFoundError } from "./errors";
+import { UserNotFoundError, UserUnauthorizedError } from "./errors";
 import { insertNewUser, getUserByEmail, getUserById, updateUser } from "./repository";
+import { AuthenticatedUser, SafeUser } from "./schemas";
 
 /**
  * Encrypts password using bcrypt
@@ -14,14 +15,17 @@ export async function hashPassword( password: string ) {
  * Validates user credentials
  * @param email Email
  * @param password Password
- * @returns User object or null, if user doesn't exists or password is wrong
+ * @returns User
+ * @throws {UserUnauthorizedError} If user is unathorized
  */
-export async function validateUser( email: string, password: string ) {
-
+export async function validateUser(
+  email: string,
+  password: string
+): Promise<AuthenticatedUser> {
   const user= await getUserByEmail( email );
 
   if( !user )
-    return null;
+    throw new UserUnauthorizedError()
 
   const isPasswordValid= await Bun.password.verify(
     password,
@@ -29,9 +33,9 @@ export async function validateUser( email: string, password: string ) {
   );
 
   if( !isPasswordValid )
-    return null;
+    throw new UserUnauthorizedError();
 
-  const { passwordHash, ...safeUser }= user;
+  const { passwordHash: _, ...safeUser }= user;
 
   return safeUser;
 };
