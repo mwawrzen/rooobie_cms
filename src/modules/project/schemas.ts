@@ -19,4 +19,10 @@ export const CreateProjectBodySchema= t.Object({
 
 export const UpdateProjectBodySchema= t.Partial( CreateProjectBodySchema );
 
+export const IdParamSchema= t.Object({
+  id: t.Numeric()
+});
+
 export type CreateProjectBody= ( typeof CreateProjectBodySchema )[ "static "];
+
+export type UpdateProjectBody= ( typeof UpdateProjectBodySchema )[ "static "];
