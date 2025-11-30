@@ -1,20 +1,14 @@
 import { Elysia } from "elysia";
-import { authJwtPlugin } from "@/src/auth/jwt.plugin";
+import { authJwtPlugin } from "@auth/jwt.plugin";
 import { validateUser } from "@modules/user/service";
 import { LoginBodySchema } from "@modules/user/schemas";
 
-export const authRouter= ( app: Elysia )=> app
+export const authRouter= new Elysia()
   .use( authJwtPlugin )
-  .post( "/login", async ({ body, jwt, set, cookie: { auth }})=> {
+  .post( "/login", async ({ body, jwt, cookie: { auth }})=> {
 
     const { email, password }= body;
-
     const user= await validateUser( email, password );
-
-    if( !user ) {
-      set.status= 401;
-      return { error: "Invalid login data" };
-    }
 
     const token= await jwt.sign({
       userId: user.id,
@@ -29,20 +23,15 @@ export const authRouter= ( app: Elysia )=> app
       path: "/"
     });
 
-    set.status= 200;
-
     return {
-      message: "Login successfull",
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      }
+      id: user.id,
+      email: user.email,
+      role: user.role
     };
   }, {
     body: LoginBodySchema
   })
-  .get( "/logout", ({ cookie: { auth }})=> {
+  .get( "/logout", ({ status, cookie: { auth }})=> {
     auth.remove();
-    return { message: "Successfully logged out" };
+    return status( 204 );
   });
