@@ -1,12 +1,12 @@
 import { Elysia } from "elysia";
+import { UserUnauthorizedError } from "@modules/user/errors";
+import { userService } from "@modules/user/service";
+import { UserPublic } from "@modules/user/schemas";
 import { authJwtPlugin } from "@auth/jwt.plugin";
-import { getUserById } from "@modules/user/repository";
-import { AuthenticatedUser } from "@modules/user/schemas";
-import { UserUnauthorizedError } from "../modules/user/errors";
 
 export const authGuard= ( app: Elysia )=> app
   .use( authJwtPlugin )
-  .resolve( async ({ jwt, cookie: { auth }}) => {
+  .resolve( async ({ jwt, cookie: { auth }})=> {
 
     const token= auth.value;
 
@@ -19,12 +19,12 @@ export const authGuard= ( app: Elysia )=> app
       if( !payload|| !payload.userId )
         return { user: null };
 
-      const dbUser= await getUserById( Number( payload.userId ));
+      const dbUser= await userService.getById( Number( payload.userId ));
 
       if( !dbUser )
         return { user: null };
 
-      const user: AuthenticatedUser= {
+      const user: UserPublic= {
         id: dbUser.id,
         email: dbUser.email,
         role: dbUser.role,
@@ -32,7 +32,7 @@ export const authGuard= ( app: Elysia )=> app
       };
 
       return { user };
-    } catch( e ) {
+    } catch(_) {
       return { user: null };
     }
   })
