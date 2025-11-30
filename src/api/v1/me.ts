@@ -1,51 +1,20 @@
 import Elysia from "elysia";
-import { UserExistsError, UserNotFoundError } from "@modules/user/errors";
-import { UpdateProfileBodySchema } from "@modules/user/schemas";
-import { updateUserProfile } from "@modules/user/service";
+import { IdParamSchema, UpdateUserBodySchema } from "@modules/user/schemas";
+import { AccessDeniedError } from "@modules/user/errors";
+import { userService } from "@modules/user/service";
 
 export const meRouter= new Elysia()
   .get( "/", ({ user }: any )=> {
     return user;
   })
-  .patch( "/", async ({ body, set, user }: any )=> {
-    const userId= user.id;
-
-    if( !body.email&& !body.password ) {
-      set.status= 400;
-      return { error: "No data provided for update" };
-    }
-
-    try {
-      const updatedUser= await updateUserProfile(
-        userId,
-        body.email,
-        body.password
-      );
-
-      return {
-        message: "Profile updated successfully",
-        user: updatedUser
-      };
-
-    } catch( error ) {
-
-      if( error instanceof UserExistsError ) {
-        set.status= 409;
-        return { error: "Resource conflict", message: "Email already in use" };
-      }
-
-      if( error instanceof UserNotFoundError ) {
-        set.status= 404;
-        return { error: "Not found", message: "User profile not found" };
-      }
-
-      set.status= 500;
-
-      return {
-        error: "Internal server error",
-        message: ( error as Error ).message
-      };
-    }
+  .patch( "/", async ({ body, user }: any )=> {
+    return await userService.update( user.id, body );
   }, {
-    body: UpdateProfileBodySchema
+    body: UpdateUserBodySchema
+  })
+  .delete( "/", async ({ status, user }: any)=> {
+    await userService.remove( user.id );
+    return status( 204 );
+  }, {
+    params: IdParamSchema
   });
