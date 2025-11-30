@@ -8,12 +8,19 @@ export const CreateUserBodySchema= t.Object({
   password: t.String({ minLength: 8, error: "Password must be at least 8 characters" })
 });
 
-export const UpdateUserBodySchema= t.Object({
-  email: t.Optional( t.String({ format: "email" })),
-  password: t.Optional( t.String({ minLength: 8 }))
+export const UpdateUserBodySchema= t.Partial( CreateUserBodySchema );
+
+export const LoginUserBodySchema= t.Object({
+  email: t.String(),
+  password: t.String()
 });
 
-export const LoginUserBodySchema= t.Partial( CreateUserBodySchema );
+export const UserPublicBodySchema= t.Object({
+  id: t.Integer(),
+  email: t.String(),
+  role: t.UnionEnum( USER_ROLES ),
+  createdAt: t.String()
+});
 
 export const IdParamSchema= t.Object({
   id: t.Numeric()
@@ -25,11 +32,6 @@ export type UpdateUserBody= ( typeof UpdateUserBodySchema )[ "static" ];
 
 export type LoginUserBody= ( typeof LoginUserBodySchema )[ "static" ];
 
-export type UserPublic= {
-  id: number;
-  email: string;
-  role: USER_ROLE;
-  createdAt: string;
-};
+export type UserPublic= ( typeof UserPublicBodySchema )[ "static" ];
 
 export type UserWithPassword= UserPublic& { passwordHash: string };
