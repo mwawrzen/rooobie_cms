@@ -1,15 +1,11 @@
 import { Elysia } from "elysia";
+import { AccessDeniedError, UserUnauthorizedError } from "../modules/user/errors";
 
 export const requiresAdmin= ( app: Elysia )=> app
-  .onBeforeHandle(({ set, user }: any )=> {
+  .onBeforeHandle(({ user }: any )=> {
+    if( !user )
+      throw new UserUnauthorizedError();
 
-    if( !user ) {
-      set.status= 401;
-      return { error: "Authentication required" };
-    }
-
-    if( user.role!== "admin" ) {
-      set.status= 403;
-      return { error: "Access denied: Admin privileges required" };
-    }
+    if( user.role!== "ADMIN" )
+      throw new AccessDeniedError( "Admin privileges required" );
   });

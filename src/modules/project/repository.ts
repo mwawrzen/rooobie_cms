@@ -5,7 +5,7 @@ import { CreateProjectBody, Project, UpdateProjectBody } from "@modules/project/
 import { randomUUIDv7 } from "bun";
 
 /**
- * Inserts project into db
+ * Inserts project into database
  * @param {CreateProjectBody} data
  * @returns Inserted project
  */
@@ -22,7 +22,7 @@ async function insert(
 };
 
 /**
- * Fetches all projects from db
+ * Fetches all projects from database
  * @returns Array of projects
  */
 async function fetchAll(): Promise<Project[]> {
@@ -30,13 +30,13 @@ async function fetchAll(): Promise<Project[]> {
 };
 
 /**
- * Fetches project from db by its id
+ * Fetches project from database by its id
  * @param id
  * @returns Project
  */
 async function fetchById(
   id: number
-): Promise<Project| undefined> {
+): Promise<Project | undefined> {
   const project= await db.query.projects.findFirst({
     where: eq( projects.id, id )
   });
@@ -44,7 +44,7 @@ async function fetchById(
 };
 
 /**
- * Updates project data in db
+ * Updates project data in database
  * @param id
  * @param {UpdateProjectBody} data
  * @returns Updated project
@@ -61,14 +61,16 @@ async function update(
 };
 
 /**
- * Removes project from db by its id
+ * Removes project from database by its id
  * @param id
  * @returns Number of removed projects (0 or 1)
  */
 async function remove( id: number ): Promise<number> {
+
   const deletedProjects= await db.delete( projects )
     .where( eq( projects.id, id ))
     .returning();
+
   return deletedProjects.length;
 };
 

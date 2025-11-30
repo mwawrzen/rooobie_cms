@@ -1,6 +1,8 @@
 import { t } from "elysia";
-import { PROJECT_STATUS, projectStatuses } from "@schema";
-import { createEnumObject } from "@utils";
+import { createEnumObject } from "@/src/utils/utils";
+
+export const PROJECT_STATUSES= [ "PLANNED", "ACTIVE", "ARCHIVED" ] as const;
+export type PROJECT_STATUS= typeof PROJECT_STATUSES[ number ];
 
 export interface Project {
   id: number;
@@ -14,7 +16,7 @@ export interface Project {
 export const CreateProjectBodySchema= t.Object({
   name: t.String({ minLength: 1, maxLength: 255 }),
   description: t.Optional( t.String() ),
-  status: t.Optional( t.Enum( createEnumObject( projectStatuses )))
+  status: t.Optional( t.Enum( createEnumObject( PROJECT_STATUSES )))
 });
 
 export const UpdateProjectBodySchema= t.Partial( CreateProjectBodySchema );

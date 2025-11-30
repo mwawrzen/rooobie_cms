@@ -1,14 +1,14 @@
 import { Elysia } from "elysia";
 import { authJwtPlugin } from "@auth/jwt.plugin";
-import { validateUser } from "@modules/user/service";
-import { LoginBodySchema } from "@modules/user/schemas";
+import { userService } from "@modules/user/service";
+import { LoginUserBodySchema } from "@modules/user/schemas";
 
 export const authRouter= new Elysia()
   .use( authJwtPlugin )
   .post( "/login", async ({ body, jwt, cookie: { auth }})=> {
 
     const { email, password }= body;
-    const user= await validateUser( email, password );
+    const user= await userService.validate( email, password );
 
     const token= await jwt.sign({
       userId: user.id,
@@ -23,13 +23,9 @@ export const authRouter= new Elysia()
       path: "/"
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role
-    };
+    return user;
   }, {
-    body: LoginBodySchema
+    body: LoginUserBodySchema
   })
   .get( "/logout", ({ status, cookie: { auth }})=> {
     auth.remove();

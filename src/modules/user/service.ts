@@ -1,28 +1,30 @@
-import { UserNotFoundError, UserUnauthorizedError } from "./errors";
-import { insertNewUser, getUserByEmail, getUserById, updateUser } from "./repository";
-import { AuthenticatedUser, SafeUser } from "./schemas";
+import { removePasswordFromUser } from "@utils";
+import { AccessDeniedError, UserNotFoundError, UserUnauthorizedError } from "./errors";
+import { CreateUserBody, UpdateUserBody, UserPublic } from "./schemas";
+import { userRepository } from "./repository";
 
 /**
  * Encrypts password using bcrypt
  * @param password Plain password
  * @returns Hashed password
  */
-export async function hashPassword( password: string ) {
+async function hashPassword( password: string ): Promise<string> {
   return await Bun.password.hash( password, { algorithm: "bcrypt" });
-};
+}
 
 /**
  * Validates user credentials
- * @param email Email
- * @param password Password
+ * @param email
+ * @param password
  * @returns User
  * @throws {UserUnauthorizedError} If user is unathorized
  */
-export async function validateUser(
+async function validate(
   email: string,
   password: string
-): Promise<AuthenticatedUser> {
-  const user= await getUserByEmail( email );
+): Promise<UserPublic> {
+
+  const user= await userRepository.fetchWithPasswordByEmail( email );
 
   if( !user )
     throw new UserUnauthorizedError()
@@ -35,53 +37,100 @@ export async function validateUser(
   if( !isPasswordValid )
     throw new UserUnauthorizedError();
 
-  const { passwordHash: _, ...safeUser }= user;
-
-  return safeUser;
-};
+  return removePasswordFromUser( user );
+}
 
 /**
- * Registers a new user
- * @param email Email
- * @param password Password
- * @returns New user object
+ * Creates new user
+ * @param {CreateUserBody} data
+ * @returns New user
  * @throws {UserExistsError} If email is occupied
  */
-export async function registerNewUser( email: string, password: string ) {
+async function create(
+  data: CreateUserBody
+): Promise<UserPublic> {
 
-  const passwordHash= await hashPassword( password );
-  const newUser= await insertNewUser( email, passwordHash );
+  const passwordHash= await hashPassword( data.password );
+  return await userRepository.insert( data.email, passwordHash );
+}
 
-  return newUser;
-};
+/**
+ * Returns all users
+ * @returns Array of users
+ */
+async function getAll(): Promise<UserPublic[]> {
+  return await userRepository.fetchAll();
+}
 
-export async function updateUserProfile(
+/**
+ * Returns user by id
+ * @param id
+ * @returns User
+ * @throws {UserNotFoundError} If user does not exist
+ */
+async function getById( id: number ): Promise<UserPublic> {
+  const user= await userRepository.fetchById( id );
+
+  if( !user )
+    throw new UserNotFoundError( id );
+
+  return user;
+}
+
+/**
+ * Updates user
+ * @param id
+ * @param {UpdateUserBody} data
+ * @returns Updated user
+ */
+async function update(
   id: number,
-  email?: string,
-  password?: string
-) {
-  const data: { email?: string, passwordHash?: string }= {};
+  { email, password }: UpdateUserBody
+): Promise<UserPublic> {
 
-  const existingUser= await getUserById( id );
-
-  if( !existingUser )
-    throw new UserNotFoundError();
-
-  if( password )
-    data.passwordHash= await hashPassword( password );
+  const newData: { email?: string, passwordHash?: string }= {};
 
   if( email )
-    data.email= email;
+    newData.email= email
 
-  if( Object.keys( data ).length=== 0 ) {
-    const { passwordHash: _, ...safeUser }= existingUser;
-    return safeUser;
-  }
+  if( password )
+    newData.passwordHash= await userService.hashPassword( password );
 
-  const updatedUser= await updateUser( id, data );
+  const updatedUser= await userRepository.update( id, newData );
 
   if( !updatedUser )
-    throw new Error( "Database integrity error during update" );
+    throw new UserNotFoundError( id );
 
   return updatedUser;
+}
+
+/**
+ * Removes user
+ * @param id
+ * @throws {UserNotFoundError} If user does not exist
+ */
+async function remove( id: number ): Promise<void> {
+
+  const user= await userRepository.fetchById( id );
+
+  if( !user )
+    throw new UserNotFoundError( id );
+
+  if( user.role=== "ADMIN" )
+    throw new AccessDeniedError( "Admin account cannot be deleted" );
+
+  const result= await userRepository.remove( id );
+
+  if( result=== 0 )
+    throw new UserNotFoundError( id );
+}
+
+export const userService= {
+  hashPassword,
+  validate,
+  create,
+  getAll,
+  getById,
+  update,
+  remove
 };

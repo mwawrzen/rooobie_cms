@@ -11,7 +11,7 @@ async function create(
   data: CreateProjectBody
 ): Promise<Project> {
   return await projectRepository.insert( data );
-};
+}
 
 /**
  * Returns all projects
@@ -19,7 +19,7 @@ async function create(
  */
 async function getAll(): Promise<Project[]> {
   return await projectRepository.fetchAll();
-};
+}
 
 /**
  * Returns project by its id
@@ -36,10 +36,10 @@ async function getById(
     throw new ProjectNotFoundError( id );
 
   return project;
-};
+}
 
 /**
- * Updates project data
+ * Updates project
  * @param id
  * @param {UpdateProjectBody} data
  * @returns Updated project
@@ -55,7 +55,7 @@ async function update(
     throw new ProjectNotFoundError( id );
 
   return updatedProject;
-};
+}
 
 /**
  * Removes project
@@ -67,7 +67,7 @@ async function remove( id: number ): Promise<void> {
 
   if( result=== 0 )
     throw new ProjectNotFoundError( id );
-};
+}
 
 export const projectService= {
   create,
@@ -76,3 +76,5 @@ export const projectService= {
   update,
   remove
 };
+
+export type ProjectService= typeof projectService;

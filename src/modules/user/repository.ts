@@ -2,7 +2,11 @@ import { eq } from "drizzle-orm";
 import { db } from "@db";
 import { users } from "@schema";
 import { UserExistsError } from "@modules/user/errors";
-import { SafeUser } from "@modules/user/schemas";
+import {
+  UpdateUserBody,
+  UserWithPassword,
+  UserPublic
+} from "@modules/user/schemas";
 
 const safeUserColumns= {
   id: users.id,
@@ -14,129 +18,130 @@ const safeUserColumns= {
 /**
  * Translates db error to system error
  */
-function translateDbError( error: unknown ): never {
+function translateDbError( error: unknown, email?: string ): never {
   if(
     error instanceof Error&&
     error.message.includes( "SQLITE_CONSTRAINT: UNIQUE" )
   ) {
-    throw new UserExistsError();
+    throw new UserExistsError( email! );
   }
   throw error;
 }
 
 /**
- * Creates a new user in database
- * @param email New user email
- * @param passwordHash Hashed password of the new user
- * @returns User object (without hash) or null
- * @throws {UserExistsError} If user with email already exists
+ * Inserts user into database
+ * @param email
+ * @param passwordHash
+ * @returns User
+ * @throws {UserExistsError} If user with given email already exists
  */
-export async function insertNewUser( email: string, passwordHash: string ) {
+async function insert(
+  email: string,
+  passwordHash: string
+): Promise<UserPublic> {
   try {
-    const result= await db.insert( users )
-      .values({
-        email,
-        passwordHash
-      })
-      .returning();
+    const [ user ]= await db.insert( users )
+      .values({ email, passwordHash })
+      .returning( safeUserColumns );
 
-    const newUser= result[ 0 ];
+    return user;
 
-    if( newUser ) {
-      const { passwordHash: _, ...safeUser }= newUser;
-      return safeUser;
-    }
-
-    throw new Error( "Database operation failed: insertNewUser returned empty result" );
-  } catch( error ) {
-    translateDbError( error );
+  } catch(_) {
+    throw new UserExistsError( email );
   }
 };
 
 /**
- * Returns all users
- * @returns All users from db
+ * Fetches all users
+ * @returns All users from database
  */
-export async function getUsers() {
-  const allUsers: SafeUser[]= await db.select( safeUserColumns ).from( users );
-  return allUsers;
-}
+async function fetchAll(): Promise<UserPublic[]> {
+  return await db.select( safeUserColumns ).from( users );
+};
 
 /**
- * Returns user by id
- * @param id User id
- * @returns User object
+ * Fetches user with password by id
+ * @param id
+ * @returns User with password
  */
-export async function getUserById( id: number ) {
+async function fetchWithPasswordById(
+  id: number
+): Promise<UserWithPassword | undefined> {
   return await db.query.users.findFirst({
     where: eq( users.id, id )
   });
 };
 
 /**
- * Returns safe user by id
- * @param id User id
- * @returns Safe user object
+ * Fetches user with password by email
+ * @param email
+ * @returns User with password
  */
-export async function getSafeUserById(
-  id: number
-): Promise<SafeUser | undefined> {
-
-  const userList= await db.select( safeUserColumns )
-    .from( users )
-    .where( eq( users.id, id ));
-
-  return userList[ 0 ];
-};
-
-/**
- * Returns user by email address
- * @param email User email
- * @returns User object or null
- */
-export async function getUserByEmail( email: string ) {
+async function fetchWithPasswordByEmail(
+  email: string
+): Promise<UserWithPassword | undefined> {
   return await db.query.users.findFirst({
     where: eq( users.email, email )
   });
 };
 
 /**
- * Updates user data
- * @param id User id
- * @param data New data (email and/or password)
- * @returns Updated user object
+ * Fetches user by id
+ * @param id
+ * @returns User
  */
-export async function updateUser(
-  id: number,
-  data: { email?: string, passwordHash?: string }
-) {
-  try {
-    const result= await db.update( users )
-      .set( data )
-      .where( eq( users.id, id ))
-      .returning();
+async function fetchById(
+  id: number
+): Promise<UserPublic | undefined> {
 
-    const updatedUser= result[ 0 ];
+  const [ user ]= await db
+    .select( safeUserColumns )
+    .from( users )
+    .where( eq( users.id, id ));
 
-    if( updatedUser ) {
-      const { passwordHash: _, ...safeUser }= updatedUser;
-      return safeUser;
-    }
-  } catch( error ) {
-    translateDbError( error );
-  }
+  return user;
 };
 
 /**
- * Deletes user by id from db
- * @param id User id
- * @returns Number of deleted rows in db
+ * Updates user
+ * @param id
+ * @param {UpdateUserBody} data
+ * @returns Updated user
  */
-export async function deleteUser( id: number ): Promise<number> {
-
-  const result= await db.delete( users )
+async function update(
+  id: number,
+  data: UpdateUserBody
+): Promise<UserPublic> {
+  const [ updatedUser ]= await db.update( users )
+    .set( data )
     .where( eq( users.id, id ))
-    .run();
+    .returning( safeUserColumns );
 
-  return ( result as unknown as { changes: number }).changes;
-}
+  return updatedUser;
+};
+
+/**
+ * Removes user from database by its id
+ * @param id
+ * @returns Number of removed users (0 or 1)
+ */
+async function remove( id: number ): Promise<number> {
+
+  const deletedUsers= await db.delete( users )
+    .where( eq( users.id, id ))
+    .returning( safeUserColumns );
+
+  return deletedUsers.length;
+};
+
+export const userRepository= {
+  insert,
+  fetchAll,
+  fetchWithPasswordById,
+  fetchWithPasswordByEmail,
+  fetchById,
+  update,
+  remove
+};
+
+export type UserRepository= typeof userRepository;
