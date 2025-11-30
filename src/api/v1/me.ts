@@ -3,11 +3,11 @@ import { UserExistsError, UserNotFoundError } from "@modules/user/errors";
 import { UpdateProfileBodySchema } from "@modules/user/schemas";
 import { updateUserProfile } from "@modules/user/service";
 
-export const userRouter= new Elysia()
-  .get( "/me", ({ user }: any )=> {
+export const meRouter= new Elysia()
+  .get( "/", ({ user }: any )=> {
     return user;
   })
-  .patch( "/me", async ({ body, set, user }: any )=> {
+  .patch( "/", async ({ body, set, user }: any )=> {
     const userId= user.id;
 
     if( !body.email&& !body.password ) {
