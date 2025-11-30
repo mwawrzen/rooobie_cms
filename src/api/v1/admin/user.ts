@@ -1,7 +1,11 @@
 import Elysia from "elysia";
-import { CreateUserBodySchema, IdParamSchema } from "@modules/user/schemas";
+import { AccessDeniedError } from "@modules/user/errors";
 import { userService } from "@modules/user/service";
-import { AccessDeniedError } from "@/src/modules/user/errors";
+import {
+  CreateUserBodySchema,
+  UpdateUserBodySchema,
+  IdParamSchema
+} from "@modules/user/schemas";
 
 export const userRouter= new Elysia({ prefix: "/user" })
   .post( "/", async ({ body, status })=> {
@@ -18,11 +22,13 @@ export const userRouter= new Elysia({ prefix: "/user" })
   }, {
     params: IdParamSchema
   })
+  .patch( "/:id", async ({ params: { id }, body }: any )=> {
+    return await userService.update( id, body );
+  }, {
+    body: UpdateUserBodySchema,
+    params: IdParamSchema
+  })
   .delete( "/:id", async ({ params: { id }, status, user }: any )=> {
-
-    if( user&& user.id=== id )
-      throw new AccessDeniedError();
-
     await userService.remove( id );
     return status( 204 );
   }, {
