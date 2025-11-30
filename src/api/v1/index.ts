@@ -2,17 +2,16 @@ import { Elysia } from "elysia";
 import { authGuard } from "@auth/guard.middleware"
 import { requiresAdmin } from "@auth/role.middleware";
 import { authRouter } from "@v1/auth";
-import { adminRouter } from "@v1/admin";
-import { userRouter } from "./v1/user";
+import { adminRouter } from "@/src/api/v1/admin";
+import { meRouter } from "./me";
 
-export const apiV1= new Elysia({ prefix: "/api/v1" })
+export const api= new Elysia({ prefix: "/api/v1" })
   .use( authRouter )
-  .group( "", app=> app
-    .use( authGuard )
-    .use( userRouter )
+  .use( authGuard )
+  .group( "/me", app=> app
+    .use( meRouter )
   )
   .group( "/admin", app=> app
-    .use( authGuard )
     .use( requiresAdmin )
     .use( adminRouter )
   );
