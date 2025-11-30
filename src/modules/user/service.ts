@@ -117,6 +117,7 @@ async function remove( id: number ): Promise<void> {
 }
 
 export const userService= {
+  hashPassword,
   validate,
   create,
   getAll,
