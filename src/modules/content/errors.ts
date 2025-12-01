@@ -2,8 +2,8 @@ export class ContentVariableNotFoundError extends Error {
 
   status= 404;
 
-  constructor( id: number ) {
-    super( `Content variable with id ${ id } not found` );
+  constructor( key: string ) {
+    super( `Content variable with key ${ key } not found` );
     this.name= "ContentVariableNotFoundError";
   }
 
