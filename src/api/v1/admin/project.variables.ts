@@ -8,8 +8,8 @@ const KeyParamSchema= t.Object({
 
 export type KeyParams= ( typeof KeyParamSchema )[ "static" ];
 
-export const projectVariablesRouter= new Elysia()
-  .post( "", async ({ params, body, user, status }: any )=> {
+export const projectVariablesRouter= new Elysia({ prefix: "variable" })
+  .post( "/", async ({ params, body, user, status }: any )=> {
     const variable= await contentService.create(
         Number( params.projectId ),
         body,
@@ -19,14 +19,14 @@ export const projectVariablesRouter= new Elysia()
   }, {
     body: ContentVariableBodySchema
   })
-  .get( "", async ({ params, user }: any )=> {
+  .get( "/", async ({ params, user }: any )=> {
     const variables= await contentService.getAll(
         Number( params.projectId ),
         user
       );
     return variables;
   })
-  .put( "", async ({ params, body, user, status }: any )=> {
+  .put( "/", async ({ params, body, user, status }: any )=> {
     const variable= await contentService.update(
         Number( params.projectId ),
         body,
