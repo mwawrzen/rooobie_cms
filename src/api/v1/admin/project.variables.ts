@@ -1,0 +1,48 @@
+import Elysia, { t } from "elysia";
+import { contentService } from "@modules/content/service";
+import { ContentVariableBodySchema } from "@modules/content/schemas";
+
+const KeyParamSchema= t.Object({
+  key: t.String()
+});
+
+export type KeyParams= ( typeof KeyParamSchema )[ "static" ];
+
+export const projectVariablesRouter= new Elysia()
+  .post( "", async ({ params, body, user, status }: any )=> {
+    const variable= await contentService.create(
+        Number( params.projectId ),
+        body,
+        user
+      );
+    return status( 201, variable );
+  }, {
+    body: ContentVariableBodySchema
+  })
+  .get( "", async ({ params, user }: any )=> {
+    const variables= await contentService.getAll(
+        Number( params.projectId ),
+        user
+      );
+    return variables;
+  })
+  .put( "", async ({ params, body, user, status }: any )=> {
+    const variable= await contentService.update(
+        Number( params.projectId ),
+        body,
+        user
+      );
+    return status( 201, variable );
+  }, {
+    body: ContentVariableBodySchema
+  })
+  .delete( "/:key", async ({ params, user, status }: any )=> {
+    await contentService.remove(
+        Number( params.projectId ),
+        params.key,
+        user
+      );
+    status( 204 );
+  }, {
+    body: KeyParamSchema
+  });
