@@ -61,7 +61,15 @@ async function update(
   return updatedProject;
 };
 
-async function updateProjectRoles( projectId: number, updates: { userId: number, role: USER_ROLE }[]) {
+/**
+ * Updates project user roles in database
+ * @param projectId
+ * @param {{ userId: number, role: USER_ROLE }}updates
+ */
+async function updateProjectRoles(
+  projectId: number,
+  updates: { userId: number, role: USER_ROLE }[]
+) {
   await db
     .delete( userProjects )
     .where( eq( userProjects.projectId, projectId ));
