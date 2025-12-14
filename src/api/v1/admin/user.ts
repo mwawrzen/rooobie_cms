@@ -1,5 +1,4 @@
 import Elysia from "elysia";
-import { AccessDeniedError } from "@modules/user/errors";
 import { userService } from "@modules/user/service";
 import {
   CreateUserBodySchema,
@@ -28,7 +27,7 @@ export const userRouter= new Elysia({ prefix: "/user" })
     body: UpdateUserBodySchema,
     params: IdParamSchema
   })
-  .delete( "/:id", async ({ params: { id }, status, user }: any )=> {
+  .delete( "/:id", async ({ params: { id }, status }: any )=> {
     await userService.remove( id );
     return status( 204 );
   }, {
