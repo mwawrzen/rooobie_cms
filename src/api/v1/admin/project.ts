@@ -27,6 +27,12 @@ export const projectRouter= new Elysia({ prefix: "/project" })
       }, {
         body: UpdateProjectBodySchema
       })
+      .patch( "/roles", async ({ params: { id }, body, status })=> {
+        await projectService.manageProjectRoles( id, body );
+        return status( 204 );
+      }, {
+        body: UpdateProjectBodySchema
+      })
       .delete( "/", async ({ params: { id }, status })=> {
         await projectService.remove( id );
         return status( 204 );
