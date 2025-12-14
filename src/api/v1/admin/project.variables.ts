@@ -8,7 +8,7 @@ const KeyParamSchema= t.Object({
 
 export type KeyParams= ( typeof KeyParamSchema )[ "static" ];
 
-export const projectVariablesRouter= new Elysia({ prefix: "variable" })
+export const projectVariablesRouter= new Elysia({ prefix: "/variable" })
   .post( "/", async ({ params, body, user, status }: any )=> {
     const variable= await contentService.create(
         Number( params.projectId ),
