@@ -1,5 +1,6 @@
 import { t } from "elysia";
-import { createEnumObject } from "@/src/utils/utils";
+import { USER_ROLES } from "@modules/user/schemas";
+import { createEnumObject } from "@utils";
 
 export const PROJECT_STATUSES= [ "PLANNED", "ACTIVE", "ARCHIVED" ] as const;
 export type PROJECT_STATUS= typeof PROJECT_STATUSES[ number ];
@@ -21,6 +22,13 @@ export const CreateProjectBodySchema= t.Object({
 
 export const UpdateProjectBodySchema= t.Partial( CreateProjectBodySchema );
 
+export const UpdateProjectRolesBodySchema= t.Object({
+  updates: t.Array( t.Object({
+    userId: t.Numeric(),
+    role: t.Enum( createEnumObject( USER_ROLES ))
+  }))
+});
+
 export const IdParamSchema= t.Object({
   id: t.Numeric()
 });
@@ -28,3 +36,6 @@ export const IdParamSchema= t.Object({
 export type CreateProjectBody= ( typeof CreateProjectBodySchema )[ "static "];
 
 export type UpdateProjectBody= ( typeof UpdateProjectBodySchema )[ "static "];
+
+export type UpdateProjectRolesBody=
+  ( typeof UpdateProjectRolesBodySchema )[ "static "];
