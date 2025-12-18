@@ -22,7 +22,7 @@ export class ProjectAccessDeniedError extends Error {
   status= 403;
 
   constructor( id: number ) {
-    super( `Access to project wiht id ${ id } denied` );
+    super( `Access to project with id ${ id } denied` );
     this.name= "ProjectAccessDeniedError";
   }
 
