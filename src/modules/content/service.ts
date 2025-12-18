@@ -17,8 +17,8 @@ async function checkProjectAccess(
   user: UserPublic,
   projectId: number
 ): Promise<void> {
-  if( user.role!== "ADMIN" )
-    throw new ProjectAccessDeniedError( projectId );
+  if( user.role=== "ADMIN" )
+    return;
 
   const projectRole=
     await projectRepository.fetchProjectRole( user.id, projectId );
