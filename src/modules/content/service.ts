@@ -17,9 +17,8 @@ async function checkProjectAccess(
   user: UserPublic,
   projectId: number
 ): Promise<void> {
-
-  if( user.role!== "ADMIN" )
-    throw new ProjectAccessDeniedError( projectId );
+  if( user.role=== "ADMIN" )
+    return;
 
   const projectRole=
     await projectRepository.fetchProjectRole( user.id, projectId );
@@ -40,8 +39,8 @@ async function create(
   data: ContentVariableBody,
   user: UserPublic
 ): Promise<ContentVariable> {
-  checkProjectAccess( user, id );
-  return contentRepository.insert( data );
+  await checkProjectAccess( user, id );
+  return contentRepository.insert( id, data );
 }
 
 /**
@@ -53,7 +52,7 @@ async function getAll(
   id: number,
   user: UserPublic
 ): Promise<ContentVariable[]> {
-  checkProjectAccess( user, id );
+  await checkProjectAccess( user, id );
   return contentRepository.fetchByProjectId( id );
 }
 
@@ -69,7 +68,7 @@ async function update(
   data: ContentVariableBody,
   user: UserPublic
 ): Promise<ContentVariable> {
-  checkProjectAccess( user, id );
+  await checkProjectAccess( user, id );
   return await contentRepository.update( id, data );
 }
 
@@ -85,7 +84,7 @@ async function remove(
   key: string,
   user: UserPublic
 ): Promise<void> {
-  checkProjectAccess( user, id );
+  await checkProjectAccess( user, id );
   const deletedCount= await contentRepository.removeByKeyAndProjectId( id, key );
 
   if( deletedCount=== 0 )
@@ -96,7 +95,8 @@ export const contentService= {
   create,
   getAll,
   update,
-  remove
+  remove,
+  checkProjectAccess
 };
 
 export type ContentService= typeof contentService;

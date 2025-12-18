@@ -11,7 +11,7 @@ export type KeyParams= ( typeof KeyParamSchema )[ "static" ];
 export const projectVariablesRouter= new Elysia({ prefix: "/variable" })
   .post( "/", async ({ params, body, user, status }: any )=> {
     const variable= await contentService.create(
-        Number( params.projectId ),
+        Number( params.id ),
         body,
         user
       );
@@ -21,14 +21,14 @@ export const projectVariablesRouter= new Elysia({ prefix: "/variable" })
   })
   .get( "/", async ({ params, user }: any )=> {
     const variables= await contentService.getAll(
-        Number( params.projectId ),
+        Number( params.id ),
         user
       );
     return variables;
   })
   .put( "/", async ({ params, body, user, status }: any )=> {
     const variable= await contentService.update(
-        Number( params.projectId ),
+        Number( params.id ),
         body,
         user
       );
@@ -38,7 +38,7 @@ export const projectVariablesRouter= new Elysia({ prefix: "/variable" })
   })
   .delete( "/:key", async ({ params, user, status }: any )=> {
     await contentService.remove(
-        Number( params.projectId ),
+        Number( params.id ),
         params.key,
         user
       );

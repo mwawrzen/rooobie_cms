@@ -33,7 +33,7 @@ export const contentVariables= sqliteTable( "content_variables", {
   projectId: int( "project_id" ).notNull().references( ()=> projects.id )
 });
 
-export const userProjects= sqliteTable( "user_prjects", {
+export const userProjects= sqliteTable( "user_projects", {
   userId:
     int( "user_id", { mode: "number" })
     .notNull()

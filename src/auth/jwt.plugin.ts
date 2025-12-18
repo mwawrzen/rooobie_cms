@@ -3,13 +3,13 @@ import { jwt } from "@elysiajs/jwt";
 
 const secret= process.env.JWT_SECRET!;
 
+export const jwtConfig= jwt({
+  name: "jwt",
+  secret,
+  exp: "1h"
+});
+
 export const authJwtPlugin= new Elysia({ name: "auth" })
-  .use(
-    jwt({
-      name: "jwt",
-      secret,
-      exp: "1h"
-    })
-  );
+  .use( jwtConfig );
 
 export type AuthJwtPlugin= typeof authJwtPlugin;

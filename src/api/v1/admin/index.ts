@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { userRouter } from "./user";
-import { projectRouter } from "./project";
+import { adminProjectRouter } from "./project";
 
 export const adminRouter= new Elysia()
   .use( userRouter )
-  .use( projectRouter );
+  .use( adminProjectRouter );

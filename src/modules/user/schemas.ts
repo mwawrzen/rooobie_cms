@@ -1,6 +1,6 @@
 import { t } from "elysia";
 
-export const USER_ROLES= [ "ADMIN", "MODERATOR", "EDITOR" ] as const;
+export const USER_ROLES= [ "ADMIN", "EDITOR" ] as const;
 export type USER_ROLE= typeof USER_ROLES[ number ];
 
 export const CreateUserBodySchema= t.Object({
