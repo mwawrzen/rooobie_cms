@@ -3,8 +3,9 @@ import { projectService } from "@modules/project/service";
 import {
   CreateProjectBodySchema,
   UpdateProjectBodySchema,
-  IdParamSchema
-} from "@/src/modules/project/schemas";
+  IdParamSchema,
+  UpdateProjectRolesBodySchema
+} from "@modules/project/schemas";
 import { projectVariablesRouter } from "@v1/admin/project.variables";
 
 export const projectRouter= new Elysia({ prefix: "/project" })
@@ -31,7 +32,7 @@ export const projectRouter= new Elysia({ prefix: "/project" })
         await projectService.manageProjectRoles( id, body );
         return status( 204 );
       }, {
-        body: UpdateProjectBodySchema
+        body: UpdateProjectRolesBodySchema
       })
       .delete( "/", async ({ params: { id }, status })=> {
         await projectService.remove( id );
