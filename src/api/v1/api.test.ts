@@ -1,5 +1,5 @@
 import Elysia from "elysia";
-import { describe, expect, it, mock } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { api } from "@v1/index";
 import { jwtConfig } from "@auth/jwt.plugin";
 import { userRepository } from "@/src/modules/user/repository";
@@ -19,14 +19,18 @@ const createReq= ( path: string, method= "GET", token= "valid-token" )=> {
   });
 };
 
+const generateToken= async (
+  payload: { userId: number, role: string, email: string }
+)=> {
+  const app= new Elysia().use( jwtConfig );
+  return await app.decorator.jwt.sign( payload );
+};
+
 describe( "API Integration - Guards & Routes", ()=> {
 
-  const generateToken= async (
-    payload: { userId: number, role: string, email: string }
-  )=> {
-    const app= new Elysia().use( jwtConfig );
-    return await app.decorator.jwt.sign( payload );
-  };
+  beforeEach(()=> {
+    mock.restore();
+  });
 
   it( "GET /public/projects should be available for everyone", async ()=> {
     const res= await api.handle(
