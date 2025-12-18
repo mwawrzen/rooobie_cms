@@ -14,7 +14,7 @@ const createReq= ( path: string, method= "GET", token= "valid-token" )=> {
   return new Request( `http://localhost/api/v1${ path }`, {
     method,
     headers: {
-      "cookie": `auth=${ token }`
+      "Cookie": `auth=${ token }`
     }
   });
 };
