@@ -8,9 +8,9 @@ import { ContentVariable, ContentVariableBody } from "./schemas";
  * @param {ContentVariableBody} data
  * @returns Inserted content variable
  */
-async function insert( data: ContentVariableBody ): Promise<ContentVariable> {
+async function insert( projectId: number, data: ContentVariableBody ): Promise<ContentVariable> {
   const [ contentVariable ]= await db.insert( contentVariables )
-    .values( data )
+    .values({ ...data, projectId })
     .returning();
   return contentVariable;
 }
