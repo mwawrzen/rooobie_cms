@@ -15,15 +15,15 @@ export const authRouter= new Elysia()
       email: user.email
     });
 
-    auth.set({
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV=== "production",
-      maxAge: 60* 60,
-      path: "/"
-    });
+    // auth.set({
+    //   value: token,
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV=== "production",
+    //   maxAge: 60* 60,
+    //   path: "/"
+    // });
 
-    return user;
+    return { token };
   }, {
     body: LoginUserBodySchema
   })
