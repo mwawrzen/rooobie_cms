@@ -44,5 +44,5 @@ export const projectVariablesRouter= new Elysia({ prefix: "/variable" })
       );
     status( 204 );
   }, {
-    body: KeyParamSchema
+    params: KeyParamSchema
   });
