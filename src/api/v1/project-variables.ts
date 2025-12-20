@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 import { contentService } from "@modules/content/service";
 import { ContentVariableBodySchema } from "@modules/content/schemas";
+import { IdParamSchema } from "@modules/project/schemas";
 
 const KeyParamSchema= t.Object({
   key: t.String()
@@ -34,6 +35,7 @@ export const projectVariablesRouter= new Elysia({ prefix: "/variable" })
       );
     return status( 201, variable );
   }, {
+    params: IdParamSchema,
     body: ContentVariableBodySchema
   })
   .delete( "/:key", async ({ params, user, status }: any )=> {
