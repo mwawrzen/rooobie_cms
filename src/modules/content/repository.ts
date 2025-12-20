@@ -56,7 +56,10 @@ async function update(
 ): Promise<ContentVariable> {
   const [ updatedVar ]= await db.update( contentVariables )
     .set( data )
-    .where( eq( contentVariables.projectId, id ))
+    .where( and(
+      eq( contentVariables.projectId, id ),
+      eq( contentVariables.key, data.key ),
+    ))
     .returning();
   return updatedVar;
 }
