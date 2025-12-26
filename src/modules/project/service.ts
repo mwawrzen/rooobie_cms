@@ -1,6 +1,12 @@
+import { userService } from "@modules/user/service";
 import { ProjectNotFoundError } from "./errors";
 import { projectRepository } from "./repository";
-import { CreateProjectBody, Project, UpdateProjectBody, UpdateProjectRolesBody } from "./schemas";
+import {
+  CreateProjectBody,
+  UpdateProjectBody,
+  UpdateProjectRolesBody,
+  Project
+} from "./schemas";
 
 /**
  * Creates new project
@@ -70,18 +76,31 @@ async function remove( id: number ): Promise<void> {
 }
 
 /**
+ * Returns project users
+ * @param projectId
+ * @returns project users
+ */
+async function getProjectUsers(
+  projectId: number
+) {
+  return await projectRepository.fetchProjectUsers( projectId );
+}
+
+/**
  * Updates project user roles
  * @param projectId
  * @param {UpdateProjectRolesBody} data
- * @returns true
  */
-async function manageProjectRoles(
+async function updateProjectUsers(
   projectId: number,
   data: UpdateProjectRolesBody
 ) {
-  await getById( projectId );
-  await projectRepository.updateProjectRoles( projectId, data.updates );
-  return true;
+  await Promise.all([
+    await getById( projectId ),
+    await userService.getById( data.userId )
+  ]);
+  await projectRepository.updateProjectUsers( projectId, data );
+  return;
 }
 
 export const projectService= {
@@ -90,7 +109,8 @@ export const projectService= {
   getById,
   update,
   remove,
-  manageProjectRoles
+  getProjectUsers,
+  updateProjectUsers
 };
 
 export type ProjectService= typeof projectService;

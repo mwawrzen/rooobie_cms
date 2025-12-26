@@ -8,6 +8,7 @@ import {
   UpdateProjectBody,
   Project
 } from "@modules/project/schemas";
+import { userService } from "../user/service";
 
 /**
  * Inserts project into database
@@ -80,47 +81,32 @@ async function remove( id: number ): Promise<number> {
 };
 
 /**
- * Fetches record from users_project table by project and user ids
- * @param userId
+ * Fetches project users
  * @param projectId
  * @returns Project role for exact user or undefined
  */
-async function fetchProjectRole(
-  userId: number,
+async function fetchProjectUsers(
   projectId: number
-): Promise<USER_ROLE| undefined> {
-  const access= await db.query.userProjects.findFirst({
+): Promise<{ userId: number, projectId: number, role: USER_ROLE }[]> {
+  const access= await db.query.userProjects.findMany({
     where: and(
-      eq( userProjects.userId, userId ),
       eq( userProjects.projectId, projectId )
     )
   });
 
-  return access?.role;
+  return access;
 }
 
 /**
  * Updates project user roles in database
  * @param projectId
- * @param {{ userId: number, role: USER_ROLE }}updates
+ * @param {{ userId: number, role: USER_ROLE }} data
  */
-async function updateProjectRoles(
+async function updateProjectUsers(
   projectId: number,
-  updates: { userId: number, role: USER_ROLE }[]
+  data: { userId: number, role: USER_ROLE }
 ) {
-  await db
-    .delete( userProjects )
-    .where( eq( userProjects.projectId, projectId ));
-
-  if( updates.length> 0 ) {
-    await db.insert( userProjects ).values(
-      updates.map( u=> ({
-        projectId,
-        userId: u.userId,
-        role: u.role
-      }))
-    );
-  }
+  await db.insert( userProjects ).values({ projectId, ...data });
 }
 
 export const projectRepository= {
@@ -129,8 +115,8 @@ export const projectRepository= {
   fetchById,
   update,
   remove,
-  updateProjectRoles,
-  fetchProjectRole
+  updateProjectUsers,
+  fetchProjectUsers
 };
 
 export type ProjectRepository= typeof projectRepository;

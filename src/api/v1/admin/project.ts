@@ -16,10 +16,16 @@ export const adminProjectRouter= new Elysia({ prefix: "/project" })
   .get( "/", async ()=> {
     return await projectService.getAll();
   })
-  .patch( ":id/roles", async ({ params: { id }, body, status })=> {
-    await projectService.manageProjectRoles( id, body );
-    return status( 204 );
-  }, {
-    body: UpdateProjectRolesBodySchema,
-    params: IdParamSchema
-  });
+  .guard(({ params: IdParamSchema }), app=> app
+    .group( "/:id", app=> app
+      .get( "/users", async ({ params: { id }})=> {
+        return await projectService.getProjectUsers( id );
+      })
+      .patch( "/users", async ({ params: { id }, body, status })=> {
+        await projectService.updateProjectUsers( id, body );
+        return status( 204 );
+      }, {
+        body: UpdateProjectRolesBodySchema
+      })
+    )
+  );

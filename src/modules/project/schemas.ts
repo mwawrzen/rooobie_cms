@@ -23,10 +23,8 @@ export const CreateProjectBodySchema= t.Object({
 export const UpdateProjectBodySchema= t.Partial( CreateProjectBodySchema );
 
 export const UpdateProjectRolesBodySchema= t.Object({
-  updates: t.Array( t.Object({
-    userId: t.Numeric(),
-    role: t.Enum( createEnumObject( USER_ROLES ))
-  }))
+  userId: t.Numeric(),
+  role: t.Optional( t.Enum( createEnumObject( USER_ROLES )))
 });
 
 export const IdParamSchema= t.Object({
