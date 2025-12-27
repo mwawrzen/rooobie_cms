@@ -80,6 +80,17 @@ async function remove( id: number ): Promise<number> {
   return deletedProjects.length;
 };
 
+async function fetchProjectRole( userId: number, projectId: number ) {
+  const result= await db.query.userProjects.findFirst({
+    where: and(
+      eq( userProjects.userId, userId ),
+      eq( userProjects.projectId, projectId )
+    )
+  });
+
+  return result?.role;
+}
+
 /**
  * Fetches project users
  * @param projectId
@@ -146,6 +157,7 @@ export const projectRepository= {
   fetchById,
   update,
   remove,
+  fetchProjectRole,
   fetchProjectUsers,
   updateProjectUsers,
   removeProjectUser
