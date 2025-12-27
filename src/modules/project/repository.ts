@@ -119,14 +119,36 @@ async function updateProjectUsers(
   await db.insert( userProjects ).values({ projectId, ...data });
 }
 
+/**
+ * Removes project user from database by his id
+ * @param userId
+ * @param projectId
+ * @returns Number of deleted rows
+ */
+async function removeProjectUser(
+  userId: number,
+  projectId: number
+): Promise<number> {
+
+  const deletedRows= await db.delete( userProjects )
+    .where( and(
+      eq( userProjects.userId, userId ),
+      eq( userProjects.projectId, projectId )
+    ))
+    .returning();
+
+  return deletedRows.length;
+};
+
 export const projectRepository= {
   insert,
   fetchAll,
   fetchById,
   update,
   remove,
+  fetchProjectUsers,
   updateProjectUsers,
-  fetchProjectUsers
+  removeProjectUser
 };
 
 export type ProjectRepository= typeof projectRepository;

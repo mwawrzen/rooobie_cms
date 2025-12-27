@@ -27,5 +27,9 @@ export const adminProjectRouter= new Elysia({ prefix: "/project" })
       }, {
         body: UpdateProjectRolesBodySchema
       })
+      .delete( "/users/:userId", async ({ params: { id, userId }, status })=> {
+        await projectService.removeProjectUser( +userId, id );
+        return status( 204 );
+      })
     )
   );

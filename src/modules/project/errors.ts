@@ -16,3 +16,22 @@ export class ProjectNotFoundError extends Error {
     });
   }
 };
+
+export class ProjectUserNotFoundError extends Error {
+
+  status= 404;
+
+  constructor( userId: number ) {
+    super( `Project user with id ${ userId } not found` );
+    this.name= "ProjectUserNotFoundError";
+  }
+
+  toResponse() {
+    return Response.json({
+      message: this.message,
+      code: this.status
+    }, {
+      status: this.status
+    });
+  }
+};

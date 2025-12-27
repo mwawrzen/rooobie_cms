@@ -1,5 +1,5 @@
 import { userService } from "@modules/user/service";
-import { ProjectNotFoundError } from "./errors";
+import { ProjectNotFoundError, ProjectUserNotFoundError } from "./errors";
 import { projectRepository } from "./repository";
 import {
   CreateProjectBody,
@@ -103,6 +103,16 @@ async function updateProjectUsers(
   return;
 }
 
+async function removeProjectUser(
+  userId: number,
+  projectId: number
+): Promise<void> {
+  const result= await projectRepository.removeProjectUser( userId, projectId );
+
+  if( result=== 0 )
+    throw new ProjectUserNotFoundError( userId );
+}
+
 export const projectService= {
   create,
   getAll,
@@ -110,7 +120,8 @@ export const projectService= {
   update,
   remove,
   getProjectUsers,
-  updateProjectUsers
+  updateProjectUsers,
+  removeProjectUser
 };
 
 export type ProjectService= typeof projectService;
