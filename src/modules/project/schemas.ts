@@ -31,6 +31,11 @@ export const IdParamSchema= t.Object({
   id: t.Numeric()
 });
 
+export const IdAndUserIdParamSchema= t.Object({
+  id: t.Numeric(),
+  userId: t.Numeric()
+});
+
 export type CreateProjectBody= ( typeof CreateProjectBodySchema )[ "static "];
 
 export type UpdateProjectBody= ( typeof UpdateProjectBodySchema )[ "static "];

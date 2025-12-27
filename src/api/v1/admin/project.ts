@@ -2,6 +2,7 @@ import Elysia from "elysia";
 import { projectService } from "@modules/project/service";
 import {
   CreateProjectBodySchema,
+  IdAndUserIdParamSchema,
   IdParamSchema,
   UpdateProjectRolesBodySchema
 } from "@modules/project/schemas";
@@ -28,8 +29,10 @@ export const adminProjectRouter= new Elysia({ prefix: "/project" })
         body: UpdateProjectRolesBodySchema
       })
       .delete( "/users/:userId", async ({ params: { id, userId }, status })=> {
-        await projectService.removeProjectUser( +userId, id );
+        await projectService.removeProjectUser( userId, id );
         return status( 204 );
+      }, {
+        params: IdAndUserIdParamSchema
       })
     )
   );
