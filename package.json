@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@elysiajs/jwt": "^1.4.0",
+    "@elysiajs/openapi": "^1.4.13",
     "drizzle-orm": "^0.44.7",
     "elysia": "latest"
   },
