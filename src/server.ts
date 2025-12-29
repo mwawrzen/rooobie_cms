@@ -1,10 +1,12 @@
 import { Elysia } from "elysia";
 import { openapi } from "@elysiajs/openapi";
 import { api } from "@/src/api/v1/index";
+import { setupDatabase } from "./db/client";
 
 const PORT= process.env.PORT!;
 
 const app= new Elysia()
+  .onStart( async ()=> await setupDatabase() )
   .use( openapi({
     documentation: {
       info: {
