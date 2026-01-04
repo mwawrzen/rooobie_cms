@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { openapi } from "@elysiajs/openapi";
 import { api } from "@/src/api/v1/index";
-import { setupDatabase } from "./db/client";
+import { setupDatabase } from "@db";
 
 const PORT= process.env.PORT!;
 
